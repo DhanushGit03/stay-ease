@@ -103,7 +103,3 @@ npm run dev
 ```
 
 The application should now be running and accessible in your browser, typically at `http://localhost:5173`.
-
-## Demo / Screenshots
-
-(Placeholder for future screenshots or a link to a live demo)
