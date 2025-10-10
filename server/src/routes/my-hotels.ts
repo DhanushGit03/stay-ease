@@ -116,6 +116,37 @@ router.put(
   }
 );
 
+// NEW: DELETE endpoint to delete a hotel
+router.delete("/:hotelId", verifyToken, async (req: Request, res: Response) => {
+  try {
+    const hotelId = req.params.hotelId; // Get the hotel ID from the URL parameters
+    const userId = req.userID; // Get the user ID from the authenticated request (set by verifyToken middleware)
+
+    // Find and delete the hotel, ensuring it belongs to the authenticated user
+    const hotel = await Hotel.findOneAndDelete({
+      _id: hotelId, // Match by hotel ID
+      userID: userId, // Ensure the hotel belongs to the current user
+    });
+
+    if (!hotel) {
+      // If no hotel was found or the user doesn't own it
+      return res
+        .status(404)
+        .json({ message: "Hotel not found or not owned by user" });
+    }
+
+    // Optional: If you store Cloudinary public_ids with the hotel,
+    // you might want to delete the images from Cloudinary here as well.
+    // This would involve iterating through hotel.imageUrls and calling cloudinary.v2.uploader.destroy().
+    // For simplicity, this part is omitted, but consider it for a complete solution.
+
+    res.status(200).json({ message: "Hotel deleted successfully" }); // Send a success response
+  } catch (error) {
+    console.error("Error deleting hotel:", error); // Log the error for debugging
+    res.status(500).json({ message: "Something went wrong" }); // Send a generic error response
+  }
+});
+
 async function uploadImages(imageFiles: Express.Multer.File[]) {
   // console.log("File images in upload function backend", fileImages)
   const uploadPromises = imageFiles.map(async (image) => {
